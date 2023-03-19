@@ -2,7 +2,7 @@ import React from 'react';
 import styled from "styled-components";
 import {useAppDispatch, useAppSelector} from "../hooks/redux";
 import {sagaActions} from "../saga/sagaActions";
-import {Card} from "../components";
+import {Card, Cart} from "../components";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -19,13 +19,14 @@ export const Container = styled.div`
   display: grid;
   padding-inline: 16px;
   justify-content: space-between;
-  
+  position: relative;
+
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 24px;
 `
 
 export const Home = () => {
-    const products = useAppSelector(state => state.products)
+    const products = useAppSelector(state => state.products.products)
     const dispatch = useAppDispatch()
 
     React.useEffect(() => {
@@ -35,17 +36,19 @@ export const Home = () => {
     return (
         <Wrapper>
             <Container>
-                {products.products.map(product => (
-                <Card
-                    key={product.id}
-                    img={product.thumbnail}
-                    title={product.title}
-                    brand={product.brand}
-                    category={product.category}
-                    price={product.price}
-                    discountPercentage={product.discountPercentage}
-                />
-            ))}
+                <Cart/>
+                {products.map(product => (
+                    <Card
+                        id={product.id}
+                        key={product.id}
+                        img={product.thumbnail}
+                        title={product.title}
+                        brand={product.brand}
+                        category={product.category}
+                        price={product.price}
+                        discountPercentage={product.discountPercentage}
+                    />
+                ))}
             </Container>
         </Wrapper>
     );

@@ -1,11 +1,24 @@
-import {createSlice} from "@reduxjs/toolkit";
+import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+
+export type Product = {
+    brand: string
+    category: string
+    description: string
+    discountPercentage: number
+    id: number
+    price: number
+    thumbnail: string
+    title: string
+}
 
 type StateType = {
-    products: Record<string, string>[]
+    products: Product[]
+    cartItems: Record<number, Product & {count: number}>
 }
 
 const initialState: StateType  = {
-    products: []
+    products: [],
+    cartItems: {}
 }
 
 export const productsSlice = createSlice({
@@ -15,8 +28,21 @@ export const productsSlice = createSlice({
         getProducts: (state, action) => {
             console.log(action)
             state.products = action.payload
+        },
+        addItem: (state, {payload}: PayloadAction<number>) => {
+            if(!state.cartItems[payload]) {
+                // @ts-ignore
+                state.cartItems[payload] = {
+                    ...state.products.find(product => product.id === payload),
+                    count: 1
+                }
+            }
+            else state.cartItems[payload].count++
+        },
+        removeItem: (state, action) => {
+
         }
     }
 })
 
-export const {getProducts} = productsSlice.actions
+export const {getProducts, addItem, removeItem} = productsSlice.actions

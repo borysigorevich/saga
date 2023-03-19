@@ -1,14 +1,19 @@
 import React from 'react';
 import styled from "styled-components";
+import Draggable from 'react-draggable'
+import {useDrag} from 'react-dnd'
 import {BsFillCartFill} from 'react-icons/bs'
+import {useAppDispatch} from "../hooks/redux";
+import {addItem} from "../store/productsSlice";
 
 type CardProps = {
     img: string
     title: string
     brand: string
     category: string
-    price: string
-    discountPercentage: string
+    price: number
+    discountPercentage: number
+    id: number
 }
 
 type WrapperProps = {
@@ -27,6 +32,7 @@ const Wrapper = styled.div<WrapperProps>`
   background-repeat: no-repeat;
   background-size: cover;
   transition: background-color .3s;
+  overflow: hidden;
 `
 
 
@@ -85,6 +91,10 @@ export const Bottom = styled.button`
   .icon {
     position: relative;
   }
+  
+  :active {
+    box-shadow: 0 0 2px #000;
+  }
 `
 
 const BlackLayer = styled.div`
@@ -122,34 +132,45 @@ const BlackLayer = styled.div`
   }
 `
 
-export const Card = ({img, title, category, brand, price, discountPercentage}: CardProps) => {
+export const Card = ({img, title, category, brand, price, discountPercentage, id}: CardProps) => {
+    const dispatch = useAppDispatch()
+    const [collected, drag, dragPreview] = useDrag(() => ({
+        type: 'test',
+        item: {id}
+    }))
 
-    const onwWordLeftBrand = brand.match(/[a-z]*/gi)?.[0]
+    const onwWordLeftCategory = category.match(/[a-z]*/gi)?.[0]
     const oneWordLeftTitle = title.match(/[a-z]*/gi)?.[0]
 
-    const convertedPrice = Number(price)
-    const oldPrice = ((convertedPrice * Number(discountPercentage) / 100) + convertedPrice).toFixed(2)
+    const convertedPrice = price
+    const oldPrice = ((convertedPrice * discountPercentage/ 100) + convertedPrice).toFixed(0)
+
+    const handleAddItem = () => {
+        dispatch(addItem(id))
+    }
 
     return (
-        <Wrapper img={img}>
-            <BlackLayer>
-                <Top>
-                    <p>{category}</p>
-                    <p>{oneWordLeftTitle}</p>
-                </Top>
+                                            // @ts-ignore
+            <Wrapper img={img} ref={drag} {...collected}>
+                <BlackLayer>
+                    <Top>
+                        <p>{onwWordLeftCategory}</p>
+                        <p>{oneWordLeftTitle}</p>
+                    </Top>
 
-                <Middle>
-                    <p>${oldPrice}</p>
-                    <p>${convertedPrice}</p>
-                </Middle>
+                    <Middle>
+                        <p>${oldPrice}</p>
+                        <p>${convertedPrice}</p>
+                    </Middle>
 
-                <Bottom>
-                    <div className='icon'>
-                        <BsFillCartFill/>
-                    </div>
-                    Add to cart
-                </Bottom>
-            </BlackLayer>
-        </Wrapper>
+                    <Bottom onClick={handleAddItem}>
+                        <div className='icon'>
+                            <BsFillCartFill/>
+                        </div>
+                        Add to cart
+                    </Bottom>
+                </BlackLayer>
+            </Wrapper>
+
     );
 };
